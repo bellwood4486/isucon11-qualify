@@ -31,7 +31,7 @@
   become: true
   roles:
     - langs.go
-    # - langs.rust
+    - langs.rust
     - bench
     - bench.node_exporter
     - bench.supervisor
