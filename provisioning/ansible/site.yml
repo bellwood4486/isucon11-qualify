@@ -21,7 +21,7 @@
     # - langs.php
     # - langs.python
     # - langs.ruby
-    # - langs.rust
+    - langs.rust
     - contestant
     - contestant.envchecker
 
@@ -47,7 +47,7 @@
     # - langs.php
     # - langs.python
     # - langs.ruby
-    # - langs.rust
+    - langs.rust
     - contestant
     - bench
 
