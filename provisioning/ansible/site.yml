@@ -16,12 +16,12 @@
   become: true
   roles:
     - langs.go
-    - langs.nodejs
-    - langs.perl
-    - langs.php
-    - langs.python
-    - langs.ruby
-    - langs.rust
+    # - langs.nodejs
+    # - langs.perl
+    # - langs.php
+    # - langs.python
+    # - langs.ruby
+    # - langs.rust
     - contestant
     - contestant.envchecker
 
@@ -31,7 +31,7 @@
   become: true
   roles:
     - langs.go
-    - langs.rust
+    # - langs.rust
     - bench
     - bench.node_exporter
     - bench.supervisor
@@ -42,12 +42,12 @@
   become: true
   roles:
     - langs.go
-    - langs.nodejs
-    - langs.perl
-    - langs.php
-    - langs.python
-    - langs.ruby
-    - langs.rust
+    # - langs.nodejs
+    # - langs.perl
+    # - langs.php
+    # - langs.python
+    # - langs.ruby
+    # - langs.rust
     - contestant
     - bench
 
