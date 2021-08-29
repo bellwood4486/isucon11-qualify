@@ -1212,7 +1212,7 @@ func postIsuCondition(c echo.Context) error {
 	bulkInsert := func(records []IsuConditionRecord) error {
 		_, err = tx.NamedExec(
 			"INSERT INTO `isu_condition`"+
-				"	(jia_isu_uuid, timestamp, is_sitting, condition, message)"+
+				"	(`jia_isu_uuid`, `timestamp`, `is_sitting`, `condition`, `message`)"+
 				"	VALUES (:jia_isu_uuid, :timestamp, :is_sitting, :condition, :message)",
 			records)
 		if err != nil {
