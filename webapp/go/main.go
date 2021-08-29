@@ -167,6 +167,14 @@ type PostIsuConditionRequest struct {
 	Timestamp int64  `json:"timestamp"`
 }
 
+type IsuConditionRecord struct {
+	JIAIsuUUID string    `db:"jia_isu_uuid"`
+	IsSitting  bool      `db:"is_sitting"`
+	Condition  string    `db:"condition"`
+	Message    string    `db:"message"`
+	Timestamp  time.Time `db:"timestamp"`
+}
+
 type JIAServiceRequest struct {
 	TargetBaseURL string `json:"target_base_url"`
 	IsuUUID       string `json:"isu_uuid"`
@@ -1201,6 +1209,19 @@ func postIsuCondition(c echo.Context) error {
 		return c.String(http.StatusNotFound, "not found: isu")
 	}
 
+	bulkInsert := func(records []IsuConditionRecord) error {
+		_, err = tx.NamedExec(
+			"INSERT INTO `isu_condition`"+
+				"	(jia_isu_uuid, timestamp, is_sitting, condition, message)"+
+				"	VALUES (:jia_isu_uuid, :timestamp, :is_sitting, :condition, :message)",
+			records)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	records := make([]IsuConditionRecord, 0, len(req))
 	for _, cond := range req {
 		timestamp := time.Unix(cond.Timestamp, 0)
 
@@ -1208,17 +1229,29 @@ func postIsuCondition(c echo.Context) error {
 			return c.String(http.StatusBadRequest, "bad request body")
 		}
 
-		// TODO バルクインサートする。https://qiita.com/sayama0402/items/b16cbdb15a20fe5a54b0
-		_, err = tx.Exec(
-			"INSERT INTO `isu_condition`"+
-				"	(`jia_isu_uuid`, `timestamp`, `is_sitting`, `condition`, `message`)"+
-				"	VALUES (?, ?, ?, ?, ?)",
-			jiaIsuUUID, timestamp, cond.IsSitting, cond.Condition, cond.Message)
-		if err != nil {
-			c.Logger().Errorf("db error: %v", err)
-			return c.NoContent(http.StatusInternalServerError)
-		}
+		records = append(records, IsuConditionRecord{
+			JIAIsuUUID: jiaIsuUUID,
+			IsSitting:  cond.IsSitting,
+			Condition:  cond.Condition,
+			Message:    cond.Message,
+			Timestamp:  timestamp,
+		})
 
+		// TODO バルクインサートする。https://qiita.com/sayama0402/items/b16cbdb15a20fe5a54b0
+		//_, err = tx.Exec(
+		//	"INSERT INTO `isu_condition`"+
+		//		"	(`jia_isu_uuid`, `timestamp`, `is_sitting`, `condition`, `message`)"+
+		//		"	VALUES (?, ?, ?, ?, ?)",
+		//	jiaIsuUUID, timestamp, cond.IsSitting, cond.Condition, cond.Message)
+		//if err != nil {
+		//	c.Logger().Errorf("db error: %v", err)
+		//	return c.NoContent(http.StatusInternalServerError)
+		//}
+	}
+
+	if err := bulkInsert(records); err != nil {
+		c.Logger().Errorf("db error: %v", err)
+		return c.NoContent(http.StatusInternalServerError)
 	}
 
 	err = tx.Commit()
