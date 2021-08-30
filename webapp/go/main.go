@@ -1210,6 +1210,7 @@ func postIsuCondition(c echo.Context) error {
 	}
 
 	bulkInsert := func(records []IsuConditionRecord) error {
+		// see: https://qiita.com/sayama0402/items/b16cbdb15a20fe5a54b0
 		_, err = tx.NamedExec(
 			"INSERT INTO `isu_condition`"+
 				"	(`jia_isu_uuid`, `timestamp`, `is_sitting`, `condition`, `message`)"+
@@ -1229,6 +1230,7 @@ func postIsuCondition(c echo.Context) error {
 			return c.String(http.StatusBadRequest, "bad request body")
 		}
 
+		// TODO 分割したほうがよいなら1000件ずつとかにする
 		records = append(records, IsuConditionRecord{
 			JIAIsuUUID: jiaIsuUUID,
 			IsSitting:  cond.IsSitting,
@@ -1236,17 +1238,6 @@ func postIsuCondition(c echo.Context) error {
 			Message:    cond.Message,
 			Timestamp:  timestamp,
 		})
-
-		// TODO バルクインサートする。https://qiita.com/sayama0402/items/b16cbdb15a20fe5a54b0
-		//_, err = tx.Exec(
-		//	"INSERT INTO `isu_condition`"+
-		//		"	(`jia_isu_uuid`, `timestamp`, `is_sitting`, `condition`, `message`)"+
-		//		"	VALUES (?, ?, ?, ?, ?)",
-		//	jiaIsuUUID, timestamp, cond.IsSitting, cond.Condition, cond.Message)
-		//if err != nil {
-		//	c.Logger().Errorf("db error: %v", err)
-		//	return c.NoContent(http.StatusInternalServerError)
-		//}
 	}
 
 	if err := bulkInsert(records); err != nil {
