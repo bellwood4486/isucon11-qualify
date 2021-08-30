@@ -223,7 +223,7 @@ func main() {
 
 	e := echo.New()
 	e.Debug = true
-	e.Logger.SetLevel(log.OFF)
+	e.Logger.SetLevel(log.ERROR)
 
 	//e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
